@@ -1,9 +1,8 @@
 from math import pi as PI
 
-from rclpy.node import Node
-
+from rospy import Publisher, Subscriber, get_rostime
 from std_msgs.msg import Empty, Float32
-from smart_home_interfaces.msg import								\
+from smart_home_msgs.msg import										\
 		ModeChange, ModeChangeRequest, DeviceActivationChange,		\
 		CountdownState, WaveParticipantLocation, WaveUpdate,		\
 		Float32Arr
@@ -14,8 +13,8 @@ MAX_AUX_DEVICE_COUNT = 32
 # Class definitions
 #
 
-## A class extending ROS2's node class, acting as the means of ROS connectivity for the smart home GUI.
-class SmartHomeHubNode(Node):
+## A class that owns all ROS elements, acting as the means of ROS connectivity for the smart home GUI.
+class SmartHomeHubNodeInterface(object):
 	
 	## The constructor. Makes the ROS connections (publishers, subscriptions, etc.) and initializes the
 	#  mode type.
@@ -26,77 +25,75 @@ class SmartHomeHubNode(Node):
 	#  @param traffic_light_change_handler The function callback for the GUI when a the state of the
 	#  traffic light is changed.
 	def __init__(self, mode_type_change_handler, traffic_light_change_handler):
-		super(SmartHomeHubNode, self).__init__("smart_home_hub")
-		
 		#
 		# Publishers
 		#
 		
-		self.mode_change_pub = self.create_publisher(
-			ModeChange,
+		self.mode_change_pub = Publisher(
 			"/smart_home/mode_change_chatter",
-			1
+			ModeChange,
+			queue_size=1
 		)
 		
-		self.device_activation_change_pub = self.create_publisher(
-			DeviceActivationChange,
+		self.device_activation_change_pub = Publisher(
 			"/smart_home/device_activation_change_chatter",
-			MAX_AUX_DEVICE_COUNT
+			DeviceActivationChange,
+			queue_size=MAX_AUX_DEVICE_COUNT
 		)
 		
-		self.intensity_change_pub = self.create_publisher(
-			Float32,
+		self.intensity_change_pub = Publisher(
 			"/smart_home/intensity_change_chatter",
-			1
+			Float32,
+			queue_size=1
 		)
 		
-		self.countdown_state_pub = self.create_publisher(
-			CountdownState,
+		self.countdown_state_pub = Publisher(
 			"/smart_home/countdown_state_chatter",
-			1
+			CountdownState,
+			queue_size=1
 		)
 		
-		self.active_frequencies_pub = self.create_publisher(
-			Float32Arr,
+		self.active_frequencies_pub = Publisher(
 			"/smart_home/active_frequencies_chatter",
-			1
+			Float32Arr,
+			queue_size=1
 		)
 		
-		self.start_wave_mode_pub = self.create_publisher(
-			Empty,
+		self.start_wave_mode_pub = Publisher(
 			"/smart_home/start_wave_mode_chatter",
-			1
+			Empty,
+			queue_size=1
 		)
 		
-		self.wave_update_pub = self.create_publisher(
-			WaveUpdate,
+		self.wave_update_pub = Publisher(
 			"/smart_home/wave_update_chatter",
-			MAX_AUX_DEVICE_COUNT
+			WaveUpdate,
+			queue_size=MAX_AUX_DEVICE_COUNT
 		)
 		
 		#
 		# Subscribers
 		#
 		
-		self.mode_change_request_sub = self.create_subscription(
-			ModeChangeRequest,
+		self.mode_change_request_sub = Subscriber(
 			"/smart_home/mode_change_request_chatter",
+			ModeChangeRequest,
 			self.mode_change_request_callback,
-			1
+			queue_size=1
 		)
 		
-		self.countdown_state_sub = self.create_subscription(
-			CountdownState,
+		self.countdown_state_sub = Subscriber(
 			"/smart_home/countdown_state_chatter",
+			CountdownState,
 			self.countdown_state_callback,
-			1
+			queue_size=1
 		)
 		
-		self.participant_location_sub = self.create_subscription(
-			WaveParticipantLocation,
+		self.participant_location_sub = Subscriber(
 			"/smart_home/wave_participant_location_chatter",
+			WaveParticipantLocation,
 			self.participant_location_callback,
-			MAX_AUX_DEVICE_COUNT
+			queue_size=MAX_AUX_DEVICE_COUNT
 		)
 		
 		#
@@ -112,7 +109,7 @@ class SmartHomeHubNode(Node):
 		
 		self.participant_locations = None
 		
-		self.get_logger().info("Started.")
+		#self.get_logger().info("Started.")
 	
 	## Repackages and sends out the requested mode type.
 	#
@@ -144,11 +141,11 @@ class SmartHomeHubNode(Node):
 	def send_mode_type(self, mode_type, call_handler):
 		mode_change_msg = ModeChange()
 		mode_change_msg.mode_type = mode_type
-		mode_change_msg.header.stamp = self.get_clock().now().to_msg()
+		mode_change_msg.header.stamp = get_rostime()
 		self.mode_change_pub.publish(mode_change_msg)
 		
 		self.current_mode = mode_type
-		self.get_logger().info("Set mode to [{0}].".format(self.current_mode))
+		#self.get_logger().info("Set mode to [{0}].".format(self.current_mode))
 		
 		if call_handler:
 			self.mode_type_change_handler()
@@ -169,7 +166,7 @@ class SmartHomeHubNode(Node):
 		device_activation_change_msg.device_id = device_id
 		device_activation_change_msg.active = active
 		self.device_activation_change_pub.publish(device_activation_change_msg)
-		self.get_logger().info("Set device with ID [{0}] to [{1}ACTIVE].".format(device_id, "" if active else "IN"))
+		#self.get_logger().info("Set device with ID [{0}] to [{1}ACTIVE].".format(device_id, "" if active else "IN"))
 	
 	## A helper function to package the batched intensity and publish it to the ROS network.
 	#
@@ -179,7 +176,7 @@ class SmartHomeHubNode(Node):
 		intensity_change_msg = Float32()
 		intensity_change_msg.data = intensity
 		self.intensity_change_pub.publish(intensity_change_msg)
-		self.get_logger().info("Set intensity to [{0}].".format(intensity))
+		#self.get_logger().info("Set intensity to [{0}].".format(intensity))
 	
 	## A helper function to take a requested state and send it out to the ROS network.
 	#
@@ -189,7 +186,7 @@ class SmartHomeHubNode(Node):
 		countdown_state_msg = CountdownState()
 		countdown_state_msg.state = state
 		self.countdown_state_pub.publish(countdown_state_msg)
-		self.get_logger().info("Set countdown state to [{0}].".format(state))
+		#self.get_logger().info("Set countdown state to [{0}].".format(state))
 	
 	## A helper function to package the batched wave period and publish it to the ROS network.
 	#

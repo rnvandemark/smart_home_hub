@@ -5,16 +5,18 @@ from threading import Thread, Lock
 
 import matplotlib.pyplot as plt
 
-from rclpy import init, spin, shutdown
+from rospy import init_node, spin as ros_spin, signal_shutdown as shutdown_ros
 
-from smart_home_interfaces.msg import ModeChange, CountdownState
+from smart_home_msgs.msg import ModeChange, CountdownState
 
-from SmartHomeHubNode import SmartHomeHubNode
+from SmartHomeHubNodeInterface import SmartHomeHubNodeInterface
 #from AudioHandler import AudioHandler
 
 #
 # Constants
 #
+
+ROS_NODE_NAME = "smart_home_hub"
 
 BATCHING_WAIT_TIME_S            = 0.1
 CLOCK_UPDATE_WAIT_TIME_S        = 0.5
@@ -107,16 +109,16 @@ class SmartHomeHubController():
 		self.wave_position_increment = None
 		self._set_wave_position_increment()
 		
-		init(args=args)
-		self.hub_node = SmartHomeHubNode(mode_type_change_handler, traffic_light_change_handler)
+		init_node(ROS_NODE_NAME)
+		self.hub_node = SmartHomeHubNodeInterface(mode_type_change_handler, traffic_light_change_handler)
 	
 	## The routine for the spin thread to perform.
 	#
 	#  @param self The object pointer.
 	def _do_spin(self):
-		self.hub_node.get_logger().info("Starting spin routine.")
-		spin(self.hub_node)
-		self.hub_node.get_logger().info("Exiting spin routine.")
+		#self.hub_node.get_logger().info("Starting spin routine.")
+		ros_spin()
+		#self.hub_node.get_logger().info("Exiting spin routine.")
 	
 	## The routine for the clock udpate thread to perform.
 	#
@@ -302,9 +304,9 @@ class SmartHomeHubController():
 		self.keep_peripheral_threads_alive = False
 		#self.audio_handler.stop()
 		
-		self.hub_node.get_logger().info("Doing destruction.")
+		#self.hub_node.get_logger().info("Doing destruction.")
 		self.hub_node.destroy_node()
-		shutdown()
+		shutdown_ros("Standard shutdown")
 	
 	## Formats the current local time into hours, minutes, and AM/PM.
 	#
