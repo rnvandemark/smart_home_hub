@@ -1,9 +1,10 @@
 from time import sleep
 import tkinter
 from PIL import Image, ImageTk
+from os.path import join as ojoin
 
-from ament_index_python.packages import get_package_prefix
-from smart_home_interfaces.msg import ModeChange, CountdownState
+from rospkg import RosPack
+from smart_home_msgs.msg import ModeChange, CountdownState
 
 from SmartHomeHubController import SmartHomeHubController, WAVE_PERIOD_DEFAULT_S
 
@@ -35,7 +36,8 @@ MAIN_CANVAS_GRID_COLUMN_COUNT = 10
 
 TRAFFIC_LIGHT_CANVAS_IMAGE_TAG = "traffic_light_canvas_image"
 
-HUB_INSTALL_LIB_DIRECTORY = get_package_prefix("hub")
+ROSPACK = RosPack()
+HUB_INSTALL_LIB_DIRECTORY = ROSPACK.get_path("hub")
 
 #
 # Global functions
@@ -56,7 +58,7 @@ def get_mode_characteristics(val):
 #  @param url_suffix The name of the directory and file to access.
 #  @return The absolute URL of the desired resource.
 def get_resource_url(url_suffix):
-	return HUB_INSTALL_LIB_DIRECTORY + "/lib/hub/resources/" + url_suffix
+	return ojoin(HUB_INSTALL_LIB_DIRECTORY, "assets", url_suffix)
 
 ## Given one of the states that the traffic light can be in, get that corresponding image.
 #
