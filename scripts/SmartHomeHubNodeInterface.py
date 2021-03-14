@@ -1,6 +1,7 @@
 from math import pi as PI
 
 from rospy import Publisher, Subscriber, get_rostime
+from rospy import loginfo, logdebug, logwarn, logerr, logfatal
 from std_msgs.msg import Empty, Float32
 from smart_home_msgs.msg import										\
 		ModeChange, ModeChangeRequest, DeviceActivationChange,		\
@@ -109,7 +110,42 @@ class SmartHomeHubNodeInterface(object):
 		
 		self.participant_locations = None
 		
-		#self.get_logger().info("Started.")
+		SmartHomeHubNodeInterface.log_info("Started.")
+	
+	## Log info to ROSOUT.
+	#
+	#  @param smsg The string message to log.
+	@staticmethod
+	def log_info(smsg):
+		loginfo(smsg)
+	
+	## Log debug to ROSOUT.
+	#
+	#  @param smsg The string message to log.
+	@staticmethod
+	def log_debug(smsg):
+		logdebug(smsg)
+	
+	## Log warn to ROSOUT.
+	#
+	#  @param smsg The string message to log.
+	@staticmethod
+	def log_warn(smsg):
+		logwarn(smsg)
+	
+	## Log err to ROSOUT.
+	#
+	#  @param smsg The string message to log.
+	@staticmethod
+	def log_err(smsg):
+		logerr(smsg)
+	
+	## Log fatal to ROSOUT.
+	#
+	#  @param smsg The string message to log.
+	@staticmethod
+	def log_fatal(smsg):
+		logfatal(smsg)
 	
 	## Repackages and sends out the requested mode type.
 	#
@@ -145,7 +181,7 @@ class SmartHomeHubNodeInterface(object):
 		self.mode_change_pub.publish(mode_change_msg)
 		
 		self.current_mode = mode_type
-		#self.get_logger().info("Set mode to [{0}].".format(self.current_mode))
+		SmartHomeHubNodeInterface.log_info("Set mode to [{0}].".format(self.current_mode))
 		
 		if call_handler:
 			self.mode_type_change_handler()
@@ -166,7 +202,7 @@ class SmartHomeHubNodeInterface(object):
 		device_activation_change_msg.device_id = device_id
 		device_activation_change_msg.active = active
 		self.device_activation_change_pub.publish(device_activation_change_msg)
-		#self.get_logger().info("Set device with ID [{0}] to [{1}ACTIVE].".format(device_id, "" if active else "IN"))
+		SmartHomeHubNodeInterface.log_info("Set device with ID [{0}] to [{1}ACTIVE].".format(device_id, "" if active else "IN"))
 	
 	## A helper function to package the batched intensity and publish it to the ROS network.
 	#
@@ -176,7 +212,7 @@ class SmartHomeHubNodeInterface(object):
 		intensity_change_msg = Float32()
 		intensity_change_msg.data = intensity
 		self.intensity_change_pub.publish(intensity_change_msg)
-		#self.get_logger().info("Set intensity to [{0}].".format(intensity))
+		SmartHomeHubNodeInterface.log_info("Set intensity to [{0}].".format(intensity))
 	
 	## A helper function to take a requested state and send it out to the ROS network.
 	#
@@ -186,7 +222,7 @@ class SmartHomeHubNodeInterface(object):
 		countdown_state_msg = CountdownState()
 		countdown_state_msg.state = state
 		self.countdown_state_pub.publish(countdown_state_msg)
-		#self.get_logger().info("Set countdown state to [{0}].".format(state))
+		SmartHomeHubNodeInterface.log_info("Set countdown state to [{0}].".format(state))
 	
 	## A helper function to package the batched wave period and publish it to the ROS network.
 	#

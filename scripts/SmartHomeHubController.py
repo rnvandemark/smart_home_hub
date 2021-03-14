@@ -116,9 +116,9 @@ class SmartHomeHubController():
 	#
 	#  @param self The object pointer.
 	def _do_spin(self):
-		#self.hub_node.get_logger().info("Starting spin routine.")
+		SmartHomeHubNodeInterface.log_info("Starting spin routine.")
 		ros_spin()
-		#self.hub_node.get_logger().info("Exiting spin routine.")
+		SmartHomeHubNodeInterface.log_info("Exiting spin routine.")
 	
 	## The routine for the clock udpate thread to perform.
 	#
@@ -304,7 +304,7 @@ class SmartHomeHubController():
 		self.keep_peripheral_threads_alive = False
 		#self.audio_handler.stop()
 		
-		#self.hub_node.get_logger().info("Doing destruction.")
+		SmartHomeHubNodeInterface.log_info("Doing destruction.")
 		self.hub_node.destroy_node()
 		shutdown_ros("Standard shutdown")
 	
