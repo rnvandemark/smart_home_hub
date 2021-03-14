@@ -37,7 +37,7 @@ MAIN_CANVAS_GRID_COLUMN_COUNT = 10
 TRAFFIC_LIGHT_CANVAS_IMAGE_TAG = "traffic_light_canvas_image"
 
 ROSPACK = RosPack()
-HUB_INSTALL_LIB_DIRECTORY = ROSPACK.get_path("hub")
+HUB_INSTALL_LIB_DIRECTORY = ROSPACK.get_path("smart_home_hub")
 
 #
 # Global functions
