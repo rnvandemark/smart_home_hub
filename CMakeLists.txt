@@ -13,13 +13,13 @@ catkin_package(
 )
 catkin_install_python(
 	PROGRAMS
-	hub/SmartHomeHubRunner
-	hub/SmartHomeHubNodeInterface.py
-	hub/SmartHomeHubController.py
-	hub/GUI.py
+	nodes/SmartHomeHubRunner
+	scripts/SmartHomeHubNodeInterface.py
+	scripts/SmartHomeHubController.py
+	scripts/GUI.py
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 install(
-	DIRECTORY resource/
-	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/resource
+	DIRECTORY assets/
+	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/assets
 )

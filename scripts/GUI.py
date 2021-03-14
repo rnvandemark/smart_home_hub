@@ -58,7 +58,7 @@ def get_mode_characteristics(val):
 #  @param url_suffix The name of the directory and file to access.
 #  @return The absolute URL of the desired resource.
 def get_resource_url(url_suffix):
-	return ojoin(HUB_INSTALL_LIB_DIRECTORY, "resource", url_suffix)
+	return ojoin(HUB_INSTALL_LIB_DIRECTORY, "assets", url_suffix)
 
 ## Given one of the states that the traffic light can be in, get that corresponding image.
 #
