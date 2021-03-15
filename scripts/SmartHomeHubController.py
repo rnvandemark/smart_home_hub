@@ -10,7 +10,6 @@ from rospy import init_node, spin as ros_spin, signal_shutdown as shutdown_ros
 from smart_home_msgs.msg import ModeChange, CountdownState
 
 from SmartHomeHubNodeInterface import SmartHomeHubNodeInterface
-#from AudioHandler import AudioHandler
 
 #
 # Constants
@@ -25,8 +24,6 @@ TRAFFIC_LIGHT_FLASH_COUNT       = 3
 WAVE_PERIOD_DEFAULT_S           = 10.0
 WAVE_UPDATE_WAIT_TIME_S         = 0.03333
 WAVE_NEGLIGIBLE_THRESHOLD       = 0.01
-AUDIO_PROCESSING_WAIT_TIME_S    = 0.1
-AUDIO_PROCESSING_FRAME_COUNT    = 32
 _2PI                            = 2 * PI
 
 MONTH_ABBREVIATIONS = {
@@ -89,12 +86,9 @@ class SmartHomeHubController():
 		self.spin_thread                   = Thread(target=self._do_spin)
 		self.clock_update_thread           = Thread(target=self._do_clock_updates)
 		self.intensity_check_thread        = Thread(target=self._do_intensity_batching)
-		self.local_audio_processing_thread = Thread(target=self._do_local_audio_processing)
 		self.wave_update_check_thread      = Thread(target=self._do_wave_update_batching)
 		self.wave_processing_thread        = Thread(target=self._do_wave_processing)
 		self.traffic_light_flash_thread    = None
-		
-		#self.audio_handler = AudioHandler()
 		
 		self.clock_update_handler = clock_update_handler
 		
@@ -147,16 +141,6 @@ class SmartHomeHubController():
 					self.intensity_change_mutex.release()
 			
 			sleep(BATCHING_WAIT_TIME_S)
-	
-	## The routine to perform handling and processing for the audio coming out of the hub's speakers.
-	#
-	#  @param self The object pointer.
-	def _do_local_audio_processing(self):
-		while self.keep_peripheral_threads_alive:
-			if self.hub_node.current_mode == ModeChange.FOLLOW_COMPUTER_SOUND:
-				sleep(AUDIO_PROCESSING_WAIT_TIME_S)
-			else:
-				sleep(AUDIO_PROCESSING_WAIT_TIME_S)
 	
 	## The routine for the wave revolution period change queuing thread to perform.
 	#
@@ -273,24 +257,19 @@ class SmartHomeHubController():
 	#  @param self The object pointer.
 	def start(self):
 		self.spin_thread.start()
-		self.local_audio_processing_thread.start()
 		self.wave_processing_thread.start()
 		self.wave_update_check_thread.start()
 		self.intensity_check_thread.start()
 		self.clock_update_thread.start()
-		
-		#self.audio_handler.start()
 	
 	## A blocking function that unblocks when the application is shutting down.
 	#
 	#  @param self The object pointer.
 	def block_until_shutdown(self):
-		#self.audio_handler.join()
 		self.clock_update_thread.join()
 		self.intensity_check_thread.join()
 		self.wave_update_check_thread.join()
 		self.wave_processing_thread.join()
-		self.local_audio_processing_thread.join()
 		
 		if self.traffic_light_flash_thread:
 			self.traffic_light_flash_thread.join()
@@ -302,8 +281,6 @@ class SmartHomeHubController():
 	#  @param self The object pointer.
 	def stop(self):
 		self.keep_peripheral_threads_alive = False
-		#self.audio_handler.stop()
-		
 		SmartHomeHubNodeInterface.log_info("Doing destruction.")
 		self.hub_node.destroy_node()
 		shutdown_ros("Standard shutdown")
@@ -357,8 +334,6 @@ class SmartHomeHubController():
 		
 		self.hub_node.active_mode_sequence_characteristics = (-1,)
 		self.hub_node.send_mode_type(new_mode_type, call_handler)
-		
-		#self.audio_handler.set_collection_status(new_mode_type == ModeChange.FOLLOW_COMPUTER_SOUND)
 	
 	## A helper function to set the mode to FULL_ON and call the handler.
 	#
