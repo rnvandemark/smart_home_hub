@@ -282,7 +282,6 @@ class SmartHomeHubController():
 	def stop(self):
 		self.keep_peripheral_threads_alive = False
 		SmartHomeHubNodeInterface.log_info("Doing destruction.")
-		self.hub_node.destroy_node()
 		shutdown_ros("Standard shutdown")
 	
 	## Formats the current local time into hours, minutes, and AM/PM.
